@@ -36,7 +36,7 @@
  - Install Postman app and make a workspace/ collection > test API call
  - Write logic to handle GET, POST, Patch, DELETE API Calls and test them on Postman
 
-* Ordering of the routes matter a lot.
+**Ordering of the routes matters a lot.**
 ```
 app.use("/hello", (req, res) => {
   res.send("hello hello hello!!!);
