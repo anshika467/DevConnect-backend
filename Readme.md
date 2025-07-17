@@ -39,7 +39,7 @@
  - Reading the query params in the routes
  - Reading the dynamic routes - req.params
 
-**Ordering of the routes matters a lot.**
+### Ordering of the routes matters a lot.
   - This will match all the HTTP method API calls to /hello
 ```
 app.use("/hello", (req, res) => {
@@ -51,7 +51,7 @@ app.use("/", (req, res) => {
 });
 ```
 
-**REST API CALLS**
+### REST API CALLS
   - This will only handle get, post, delete call to the user
 ```
 app.get("/user", (req, res) => {
@@ -68,7 +68,7 @@ app.delete("/user", (req, res) => {
 });
 ```
 
-**Expressions in the routes**
+### Expressions in the routes
 
 `* -> matches zero or more characters` <br>
 `+ -> one or more characters` <br>
@@ -79,7 +79,7 @@ app.delete("/user", (req, res) => {
 
 *Paths: "/ab?c" , "/ab+cd" , "/ab\*cd " , "/a(bc)?cd", /a/ , /.\*fly$/*
 
-**Dynamic Routing -> /:userID/:name/:password -> req.params**
+### Dynamic Routing -> /:userID/:name/:password -> req.params
 ```
 app.get("/user/:userID/:name/:password", (req, res) => {
   // console.log(req.query);
