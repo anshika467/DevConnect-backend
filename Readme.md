@@ -79,7 +79,8 @@ app.delete("/user", (req, res) => {
 
 *Paths: "/ab?c" , "/ab+cd" , "/ab\*cd " , "/a(bc)?cd", /a/ , /.\*fly$/*
 
-### Dynamic Routing -> /:userID/:name/:password -> req.params
+### Dynamic Routing
+  - The path is: `/:userID/:....` and so on - using `req.params`
 ```
 app.get("/user/:userID/:name/:password", (req, res) => {
   // console.log(req.query);
