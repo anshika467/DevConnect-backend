@@ -37,7 +37,7 @@
  - Write logic to handle GET, POST, Patch, DELETE API Calls and test them on Postman
 
 * Ordering of the routes matter a lot.
-`
+```
 app.use("/hello", (req, res) => {
   res.send("hello hello hello!!!);
 });
@@ -45,6 +45,5 @@ app.use("/hello", (req, res) => {
 app.use("/", (req, res) => {
   res.send("Welcome to the Dashboard!!!");
 });
-
-`
+```
 
