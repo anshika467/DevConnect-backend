@@ -21,8 +21,8 @@
 ` ^ `  : ^ allows only the **patch** and **minor** updates. <br>
 ` ~ `  : ~ allows only the **patch** updates.
 
-`package-lock.json` : Defines project metadata, scripts, and lists of dependencies (with version ranges). <br>
-`package.json` : Locks down the exact versions of all installed packages (including nested ones).
+`package-lock.json` : Locks down the exact versions of all installed packages (including nested ones). <br>
+`package.json` : Defines project metadata, scripts, and lists of dependencies (with version ranges).
 
 **Node - 4**
 ------------
@@ -80,12 +80,19 @@ app.delete("/user", (req, res) => {
 *Paths: "/ab?c" , "/ab+cd" , "/ab\*cd " , "/a(bc)?cd", /a/ , /.\*fly$/*
 
 ### Dynamic Routing
-  - The path is: `/:userID/:....` and so on - using `req.params`
-```
-app.get("/user/:userID/:name/:password", (req, res) => {
-  // console.log(req.query);
-  console.log(req.params);
-  
-  res.send({ firstName: "Anshika", lastName: "Saxena" });
-});
-```
+ - URL to Console => Path: `http://localhost:7777/user?userID=777` <br>
+   Method to use = `req.query`
+   ```
+   app.get("/user", (req, res) => {});
+   ```
+   
+ - The path is: `/:userID/:....` and so on - using `req.params`
+   ```
+   app.get("/user/:userID/:name/:password", (req, res) => {
+     // console.log(req.query);
+     console.log(req.params);
+     
+     res.send({ firstName: "Anshika", lastName: "Saxena" });
+   });
+   ```
+
