@@ -39,6 +39,17 @@
  - Reading the query params in the routes
  - Reading the dynamic routes - req.params
 
+### Creating a server - Listening to Port 7777
+```
+const express = require('express');
+const app = express();
+
+app.listen(7777, () => {
+  console.log('Server is successfully running on port 7777');
+});
+
+```
+
 ### Ordering of the routes matters a lot.
   - This will match all the HTTP method API calls to /hello
 ```
