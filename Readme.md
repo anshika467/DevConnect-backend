@@ -224,3 +224,106 @@ app.get("/admin/deleteUser", (req, res) => {
     }
   });
   ```
+
+**Node - 6**
+------------
+
+ - Create a free cluster on MongoDB official website (Mongo Atlas)
+ - Install Mongoose library - `npm i mongoose`
+ - Connect your application to the Database "Connection-url"/devTinder - `/config/database.js`
+ - Call the connectDB function and connect the database before starting app on 7777
+ - Create a userSchema & user Model
+ - Create POST /signup API to add data to database
+ - Push some documents using API calls from postman - Error handling using try, catch
+
+### Install Mongoose and set up Connection
+  - Set up the cluster in Compass - `NamasteDev` and copy the `connection-string`.
+  - Add the name of the database at the end of the Connection-string - `devTinder`.
+
+  ```
+  const mongoose = require("mongoose");
+
+  const connectDB = async () => {
+    await mongoose.connect(
+      "mongodb+srv://namastenodejs:dSTSsfetqZP0xg4a@namastenode.bwcu78w.mongodb.net/devTinder"
+    );
+  };
+
+  module.exports = connectDB;
+  ```
+
+### Establish Connection with the application
+  - Always connect the DB in the `app.js` using try and catch.
+  - IMPORTANT => Always `connect the DB first then listen to the requests.`
+
+  ```
+  const connectDB = require("./config/database");
+
+  connectDB()
+  .then(() => {
+    console.log("Database connection established!!!");
+    app.listen(7777, () => {
+      console.log("Server is successfully running on port 7777");
+    });
+  })
+  .catch((err) => {
+    console.log("Database cannot be connected!!");
+  });
+  ```
+
+### User Model - userSchema, exporting user model
+  - The structure of the DB is created - `SCHEMA`
+  - It's instance is exported - `model` => (`"User" model for UserSchema`)
+
+  ```
+  const mongoose = require("mongoose");
+
+  const userSchema = new mongoose.Schema({
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    emailID: {
+      type: String,
+    },
+    password: {
+      type: String,
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+    },
+  });
+
+  module.exports = mongoose.model("User", userSchema);
+  ```
+
+### Adding a new user using POST API
+  - Using the `User` model a new user instance is created as the document to be added in the collection.
+  - `user.save()` saves the data in the collection.
+  ```
+  const User = require("./models/user");
+
+  app.post("/signup", async (req, res) => {
+    // Creating a new instance of the User model
+    const user = new User({
+      firstName: "Virat",
+      lastName: "Kolhi",
+      emailID: "virat@gmail.com",
+      password: "virat123",
+    });
+
+    //returns a promise
+    try {
+      await user.save();
+      res.send("User added successfully!");
+    }
+    catch (err) {
+      res.status(400).send("Error adding user: " + err.message);
+    }
+  });
+  ```
