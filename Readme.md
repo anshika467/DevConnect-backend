@@ -107,3 +107,90 @@ app.delete("/user", (req, res) => {
    });
    ```
 
+**Node - 5**
+------------
+
+ - Handling multiple route handlers
+ - next()
+ - next function and errors along with res.send()
+ - app.use("/route", rH, [rH2, rH3], rH4, rH5);
+ - What is a middleware? Why do we need it?
+ - How express JS basically handles quests behind the scenes.
+ - GET /users => middleware cahin => request handlers
+ - Difference between app.use and app.all.
+ - Write a dummy auth middleware for admin
+ - Write a dummy auth middleware for all user routes, except /user/login
+
+
+### Multiple Route Handlers - MIDDLEWARE
+
+  - ***Middleware*** are functions that have access to the *request object* (`req`), *response object* (`res`) and the next middleware function in the app's request-response cycle. (`next`)
+  - If the middleware does not end the req.-res. cycle, it must call the ` next() ` to pass control to the next middleware function.
+
+```
+app.use(
+  "/user",
+  (req, res, next) => {
+    console.log("Handling the route user");
+    res.send("Response!!!");
+    next();
+  },
+  (req, res, next) => {
+    console.log("Handling the route user 2");
+    // res.send("2nd Response!!!");
+    next();
+  },
+  (req, res, next) => {
+    console.log("Handling the route user 3");
+    // res.send("3rd Response!!!");
+    // next();
+  },
+);
+```
+
+The same way - seperate route handlers:
+
+```
+app.use("/user", (req, res, next) => {
+    console.log("Handling the route user");
+    res.send("Response!!!");
+    next();
+});
+
+app.use("/user", (req, res, next) => {
+    console.log("Handling the route user 2");
+    res.send("2nd Route Handler!!!");
+});
+```
+
+### Authentication - MIDDLEWARE
+  - Before getting to the path of "/admin/getAlldata", it goes through the "/admin" middleware.
+  - Creating a seperate file for authentication reduces redundancy.
+  - Using Middleware, We don't need to write the logic for auth. again and again for each handler.
+```
+// in middlewares/auth.js
+const adminAuth = (req, res, next) => {
+  console.log("Admin Auth is getting checked!!");
+  const token = "xyz";
+  const isAuthorized = token === "xyz";
+  if (!isAuthorized) {
+    res.status(401).send("Unauthorized request");
+  } else {
+    next();
+  }
+};
+
+// in app.js
+app.use("/admin", adminAuth);
+app.get("/user/data", userAuth, (req, res) => {
+  res.send("User Data Sent");
+});
+
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All Data Sent");
+});
+
+app.get("/admin/deleteUser", (req, res) => {
+  res.send("Deleted a user");
+});
+```
