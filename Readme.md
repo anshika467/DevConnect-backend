@@ -215,7 +215,7 @@ app.get("/admin/deleteUser", (req, res) => {
    ```
 
   2. **Wildcard - app.use("/)**
-   - This method is used for the corner case if occured and can be resolved gracefully.
+     - This method is used for the corner case if occured and can be resolved gracefully.
    ```
    app.use("/", (err, req, res, next) => {
      if(err) {
