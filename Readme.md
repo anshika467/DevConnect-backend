@@ -305,6 +305,7 @@ app.get("/admin/deleteUser", (req, res) => {
 ### Adding a new user using POST API
   - Using the `User` model a new user instance is created as the document to be added in the collection.
   - `user.save()` saves the data in the collection.
+  - ***Error Handling*** : Enclose the `user.save()` within the try-catch block.
   ```
   const User = require("./models/user");
 
