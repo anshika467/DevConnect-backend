@@ -2,25 +2,24 @@ const express = require("express");
 
 const app = express();
 
-const { adminAuth, userAuth } = require("./middlewares/auth");
+app.get("/getUserData", (req, res) => {
+  //Logic of DB call and get user Data
+  // try {
 
-// Handle Auth Middleware for all GET, POST, ... requests
-app.use("/admin", adminAuth);
-
-app.get("/user/login", (req, res) => {
-  res.send("User Logged In");
+    throw new Error("Database connection failed");
+    res.send("User data Sent");
+  // }
+  // catch {
+  //   res.status(500).send("Some Error occurred while fetching user data");
+  // }
 });
 
-app.get("/user/data", userAuth, (req, res) => {
-  res.send("User Data Sent");
-});
-
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All Data Sent");
-});
-
-app.get("/admin/deleteUser", (req, res) => {
-  res.send("Deleted a user");
+// order of err, req, res, next is important
+app.use("/", (err, req, res, next) => {
+  if(err) {
+    // Log your error
+    res.status(500).send("Something went wrong" );
+  }
 });
 
 app.listen(7777, () => {

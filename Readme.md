@@ -120,6 +120,7 @@ app.delete("/user", (req, res) => {
  - Difference between app.use and app.all.
  - Write a dummy auth middleware for admin
  - Write a dummy auth middleware for all user routes, except /user/login
+ - Error Handling using app.use("/", (err, req, res, next) => {});
 
 
 ### Multiple Route Handlers - MIDDLEWARE
@@ -194,3 +195,32 @@ app.get("/admin/deleteUser", (req, res) => {
   res.send("Deleted a user");
 });
 ```
+
+### Wildcard Error Handling
+  - Two ways of Error handling: ***Try-catch*** (Recommended) & ***app.use("/")***
+  - **The order of the params: `(err, req, res, next)` is very important.**
+
+  1. **Try-catch method**:
+  ```
+  app.get("/getUserData", (req, res) => {
+    //Logic of DB call and get user Data
+    try {
+      throw new Error("Database connection failed");
+      res.send("User data Sent");
+    }
+    catch {
+      res.status(500).send("Some Error occurred while fetching user data");
+    }
+  });
+  ```
+
+  2. **Wildcard - app.use("/)**
+     - This method is used for the corner case if occured and can be resolved gracefully.
+  ```
+  app.use("/", (err, req, res, next) => {
+    if(err) {
+      // Log your error
+      res.status(500).send("Something went wrong" );
+    }
+  });
+  ```
