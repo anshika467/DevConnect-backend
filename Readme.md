@@ -201,26 +201,26 @@ app.get("/admin/deleteUser", (req, res) => {
   - **The order of the params: `(err, req, res, next)` is very important.**
 
   1. **Try-catch method**:
-   ```
-   app.get("/getUserData", (req, res) => {
-     //Logic of DB call and get user Data
-     try {
-       throw new Error("Database connection failed");
-       res.send("User data Sent");
-     }
-     catch {
-       res.status(500).send("Some Error occurred while  fetching user data");
-     }
-   });
-   ```
+  ```
+  app.get("/getUserData", (req, res) => {
+    //Logic of DB call and get user Data
+    try {
+      throw new Error("Database connection failed");
+      res.send("User data Sent");
+    }
+    catch {
+      res.status(500).send("Some Error occurred while  fetching user data");
+    }
+  });
+  ```
 
   2. **Wildcard - app.use("/)**
      - This method is used for the corner case if occured and can be resolved gracefully.
-   ```
-   app.use("/", (err, req, res, next) => {
-     if(err) {
-       // Log your error
-       res.status(500).send("Something went wrong" );
-     }
-   });
-   ```
+  ```
+  app.use("/", (err, req, res, next) => {
+    if(err) {
+      // Log your error
+      res.status(500).send("Something went wrong" );
+    }
+  });
+  ```
