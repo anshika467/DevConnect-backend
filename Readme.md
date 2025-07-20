@@ -335,4 +335,69 @@ app.get("/admin/deleteUser", (req, res) => {
  - JS Object vs JSON (difference) - Noticeable => JSON has keys as strings while JS Obj. don't.
  - Add the express.json middleware to your app
  - Make your signup API dynamic to receive data from the end user
- - 
+ - User.findOne with duplicate emailIds, which object is returned??? Oldest / random ?
+ - API - get user by email
+ - API - Feed API - GET /feed  - get all the users from the database
+ - API - Get user by Id
+ - Create the delete user API
+ - Difference between Patch and Put
+ - API - Update a user
+ - Explore the Mongoose Documentation for Model methods
+ - What are options in a Model. findOneAndUpdate method, explore more about it
+ - API - Update the user with emailID
+
+### GET a User by ID / Email
+  - `find` function is used to filter the data based on the selected fields. (`find({ emailID: userEmail })`)
+  - Multiple functions: `find` , `findOne` , `findById`.
+  - `findByID` function can be used by shorthand - `findbyId(userID)`.
+  - In case of **duplicate EmailId**, the first one is returned.
+  - `find()` returns any arbitrary document.
+  ```
+  app.get("/userID", async (req, res) => {
+    const Id = req.body._id;
+
+    if(!Id) {
+      res.status(400).send("User ID is required");
+    }
+    else {
+      try {
+        const user = await User.findById(Id);
+        if(!user) {
+          res.status(404).send("User not present with this ID");
+        }
+        else {
+          res.send(user);
+        }
+      }
+      catch (err) {
+        res.status(500).send("Something went wrong");
+      }
+    }
+  })
+  ```
+
+### GET All Users
+  - In `find`, we just need to pass empty filter. (`find({})`)
+  ```
+  const users = await User.find({});
+  ```
+
+### DELETE a User
+  - Function used: `findByIdAndDelete` & `findOneAndDelete` and so on.
+  ```
+  const user = await User.findbyIdAndDelete(userId);
+  ```
+
+### UPDATE a User by ID / Email
+  - `app.patch` or `app.put` can be used.
+  - **By ID**:
+    ```
+    const userId = req.body.userId;
+    const data = req.body;
+
+    const user = await User.findByIdAndUpdate(userId, data);
+    ```
+  - **By Email**:
+    ```
+    const user = await User.findOneAndUpdate({emailId: userEmail}, data);
+    ```
