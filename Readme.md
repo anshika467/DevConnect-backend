@@ -328,3 +328,11 @@ app.get("/admin/deleteUser", (req, res) => {
     }
   });
   ```
+
+**Node - 7**
+------------
+
+ - JS Object vs JSON (difference) - Noticeable => JSON has keys as strings while JS Obj. don't.
+ - Add the express.json middleware to your app
+ - Make your signup API dynamic to receive data from the end user
+ - 
