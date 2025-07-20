@@ -272,8 +272,8 @@ app.get("/admin/deleteUser", (req, res) => {
   ```
 
 ### User Model - userSchema, exporting user model
-  - The structure of the DB is created - `SCHEMA`
-  - It's instance is exported - `model` => (`"User" model for UserSchema`)
+  - `Schema` : Outlines the structure of the DB Document. i.e. the fields / properties
+  - `Model`  : interface for interacting with the DB collection based on the defined schema (`"User" model for UserSchema`)
 
   ```
   const mongoose = require("mongoose");
