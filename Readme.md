@@ -347,7 +347,7 @@ app.get("/admin/deleteUser", (req, res) => {
  - API - Update the user with emailID
 
 ### GET a User by ID / Email
-  - `find` function is used to filter the data based on the selected fields. (`find({ emailID: userEmail })`)
+  - `find` function is used to filter the data based on the selected fields. - `find({ emailID: userEmail })`
   - Multiple functions: `find` , `findOne` , `findById`.
   - `findByID` function can be used by shorthand - `findbyId(userID)`.
   - In case of **duplicate EmailId**, the first one is returned.
@@ -377,7 +377,7 @@ app.get("/admin/deleteUser", (req, res) => {
   ```
 
 ### GET All Users
-  - In `find`, we just need to pass empty filter. (`find({})`)
+  - In `find`, we just need to pass empty filter. - `find({})`
   ```
   const users = await User.find({});
   ```
