@@ -2,6 +2,7 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const user = require("./models/user");
 
 app.use(express.json());
 
@@ -22,24 +23,21 @@ app.post("/signup", async (req, res) => {
 app.get("/userID", async (req, res) => {
   const Id = req.body._id;
 
-  if(!Id) {
+  if (!Id) {
     res.status(400).send("User ID is required");
-  }
-  else {
+  } else {
     try {
       const user = await User.findById(Id);
-      if(!user) {
+      if (!user) {
         res.status(404).send("User not present with this ID");
-      }
-      else {
+      } else {
         res.send(user);
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.status(500).send("Something went wrong");
     }
   }
-})
+});
 
 // Get a user by emailID
 app.get("/user", async (req, res) => {
@@ -89,36 +87,52 @@ app.delete("/user", async (req, res) => {
 
   try {
     const user = await User.findByIdAndDelete(userId);
-    if(!user) {
+    if (!user) {
       res.send("User not found with this ID");
-    }
-    else {
+    } else {
       res.send("User deleted successfully!");
     }
-  }
-  catch (err) {
+  } catch (err) {
     res.status(500).send("Error deleting user");
   }
 });
 
 // Update the user via ID
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
   const data = req.body;
 
-  try {
-    const user = await User.findByIdAndUpdate(userId, data);
-    console.log(user);
+  console.log(userId, data);
 
-    if(!user) {
+  try {
+    const ALLOWED_UPDATES = [
+      "photoUrl",
+      "about",
+      "gender",
+      "age",
+      "skills",
+    ];
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    const user = await User.findByIdAndUpdate(userId, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+
+    if (!user) {
       res.status(404).send("User not found with this ID");
+    } else {
+      res.send("Update successful!");
     }
-    else {
-      res.send("User updated successfully!");
-    }
-  }
-  catch (err) {
-    res.status(500).send("Error updating user");
+  } catch (err) {
+    res.status(500).send("Error updating user: " + err.message);
   }
 });
 
@@ -130,19 +144,15 @@ app.patch("/userEmail", async (req, res) => {
   try {
     const user = await User.findOneAndUpdate({ emailID: userEmail }, data);
     console.log(user);
-    if(!user) {
+    if (!user) {
       res.status(404).send("User not found with this emailID");
-    }
-    else {
+    } else {
       res.send("User updated successfully!");
     }
-  }
-  catch (err) {
+  } catch (err) {
     res.status(500).send("Error updating user");
   }
 });
-
-
 
 connectDB()
   .then(() => {

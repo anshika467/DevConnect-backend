@@ -401,3 +401,22 @@ app.get("/admin/deleteUser", (req, res) => {
     ```
     const user = await User.findOneAndUpdate({emailId: userEmail}, data);
     ```
+
+**Node - 8**
+------------
+
+ - Explore schemaType options fromt the documentation
+ - add required, unique, lowercase, min, minLength, trim
+ - Add default
+ - Create a custom validate function for gender
+ - Improve the DB Schema - PUT all the appropriate validations on each field in Schema
+ - Add timestamps to the userSchema
+ - Add API level validations on Patch request & signup post api
+ - Data Sanitization - Add API validation for each field
+ - Install Validator
+ - Explore Validator library functions and use Validator functions for password, email
+ - NEVER TRUST req.body
+
+-- Different validations in user.js
+   Validations in patch - runValidators = U want the `validations` to occur at the time of updation as well not just at creation...
+-- In patch, ALLOWED_UPDATES - only certain fields can be changed
