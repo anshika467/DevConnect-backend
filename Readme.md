@@ -402,13 +402,14 @@ app.get("/admin/deleteUser", (req, res) => {
     const user = await User.findOneAndUpdate({emailId: userEmail}, data);
     ```
 
+
 **Node - 8**
 ------------
 
  - Explore schemaType options fromt the documentation
  - add required, unique, lowercase, min, minLength, trim
  - Add default
- - Create a custom validate function for gender
+ - Create a custom validate function for gender, email
  - Improve the DB Schema - PUT all the appropriate validations on each field in Schema
  - Add timestamps to the userSchema
  - Add API level validations on Patch request & signup post api
@@ -420,3 +421,146 @@ app.get("/admin/deleteUser", (req, res) => {
 -- Different validations in user.js
    Validations in patch - runValidators = U want the `validations` to occur at the time of updation as well not just at creation...
 -- In patch, ALLOWED_UPDATES - only certain fields can be changed
+
+### DATA VALIDATION / DATA SANITIZATION
+  - In documentation, many `API level` and `Database level` restrictions.
+
+  - **Database Level - Within Schema (SchemaType)**
+    ```
+    firstName: {
+      type: String,
+      required: true,
+      minLength: 4,
+      maxLength: 20,
+      trim: true,
+    },
+    ```
+  - **Using Validator function - Within Schema**
+    ```
+    validator(value) {
+      if (!validator.isEmail(value)) {
+        throw new Error("EmailId is not valid" + value);
+      }
+    },
+    ```
+  - **Validation for specific Value Updates**
+    ```
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+    ```
+  - **runValidators - Update api**
+    - In updation, for running the DB level validation not just at creation but also at Updation => `runValidators` is used.
+    ```
+    const user = await User.findByIdAndUpdate(userId, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+    ```
+
+### Timestamps
+  - For calculating the `created at` and `updated at` time, Mongo provides the functionality within the Schema only.
+  ```
+  const userSchema = new mongoose.Schema(
+    {
+      firstName: {
+        type: String,
+      },
+    },
+    {
+      timestamps: true,
+    }
+  );
+  ```
+
+
+**Node - 9**
+------------
+
+ - Validate data in Signup API
+ - Install bcrypt package
+ - Create a passwordHash using bcrypt.hash & Save the user with encrypted password
+ - Create Login API - compare passwords and throw errors if email and password is invalid
+
+### ENCRYPTION - Signup API
+  - `bcrypt package` is installed and the password is encrypted using the `bcrypt.hash(password, 10)` function.
+  - `salt` is created and gets more tough with each round (`10`).
+
+  - **SANITIZATION of the SIGNUP data**
+    - *Function : validateSignUpData*  
+    ```
+    const validator = require("validator");
+
+    const validateSignUpData = (req) => {
+      const { firstName, lastName, emailID, password } = req.body;
+
+      if (!firstName || !lastName) {
+        throw new Error("Name is not valid!");
+      } else if (!validator.isEmail(emailID)) {
+        throw new Error("Email is not valid!");
+      } else if (!validator.isStrongPassword(password)) {
+        throw new Error("Please Enter a Strong Password!");
+      }
+    };
+
+    module.exports = {
+      validateSignUpData,
+    };
+    ```
+  
+  - **ENCRYPTION - PASSWORD HASHING**
+    ```
+    try {
+      // Validate the dat a
+      validateSignUpData(req);
+
+      // Encrypt the password
+      const { firstName, lastName, emailID, password } = req.body;
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Creating a new instance of the User model
+      const user = new User({
+        firstName,
+        lastName,
+        emailID,
+        password: passwordHash,
+      });
+
+      //returns a promise
+      await user.save();
+      res.send("User added successfully!");
+    }
+    ```
+
+### LOGIN API
+  - `EmailID` and `password` is used. 
+  - For password comparison, `bcrypt.compare` is used.
+
+  ```
+  app.post("/login", async (req, res) => {
+    try {
+      const { emailID, password } = req.body;
+
+      const user = await User.findOne({ emailID: emailID });
+      if (!user) {
+        throw new Error("Invalid credentials!!!");
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (isPasswordValid) {
+        res.send("Login Successful!!");
+      } else {
+        throw new Error("Invalid credentials!!!");
+      }
+    } catch (err) {
+      res.status(400).send("ERROR : " + err.message);
+    }
+  });
+  ```

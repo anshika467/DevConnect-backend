@@ -2,20 +2,55 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
-const user = require("./models/user");
+const bcrypt = require("bcrypt");
+
+const { validateSignUpData } = require("./utils/validation");
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  // Creating a new instance of the User model
-  const user = new User(req.body);
-
-  //returns a promise
   try {
+    // Validate the dat a
+    validateSignUpData(req);
+
+    // Encrypt the password
+    const { firstName, lastName, emailID, password } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Creating a new instance of the User model
+    const user = new User({
+      firstName,
+      lastName,
+      emailID,
+      password: passwordHash,
+    });
+
+    //returns a promise
     await user.save();
     res.send("User added successfully!");
   } catch (err) {
-    res.status(400).send("Error adding user: " + err.message);
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailID, password } = req.body;
+
+    const user = await User.findOne({ emailID: emailID });
+    if (!user) {
+      throw new Error("Invalid credentials!!!");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Successful!!");
+    } else {
+      throw new Error("Invalid credentials!!!");
+    }
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -102,16 +137,8 @@ app.patch("/user/:userId", async (req, res) => {
   const userId = req.params.userId;
   const data = req.body;
 
-  console.log(userId, data);
-
   try {
-    const ALLOWED_UPDATES = [
-      "photoUrl",
-      "about",
-      "gender",
-      "age",
-      "skills",
-    ];
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
 
     const isUpdateAllowed = Object.keys(data).every((k) =>
       ALLOWED_UPDATES.includes(k)
@@ -143,7 +170,6 @@ app.patch("/userEmail", async (req, res) => {
 
   try {
     const user = await User.findOneAndUpdate({ emailID: userEmail }, data);
-    console.log(user);
     if (!user) {
       res.status(404).send("User not found with this emailID");
     } else {
