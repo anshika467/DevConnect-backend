@@ -517,7 +517,7 @@ app.get("/admin/deleteUser", (req, res) => {
   - **ENCRYPTION - PASSWORD HASHING**
     ```
     try {
-      // Validate the dat a
+      // Validate the data
       validateSignUpData(req);
 
       // Encrypt the password

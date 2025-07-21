@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    // Validate the dat a
+    // Validate the data
     validateSignUpData(req);
 
     // Encrypt the password
