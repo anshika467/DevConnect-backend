@@ -564,3 +564,82 @@ app.get("/admin/deleteUser", (req, res) => {
     }
   });
   ```
+
+**Node - 10**
+-------------
+
+ - Install cookie-parser
+ - just send a dummy cookie to user
+ - Create a GET /profile API and check if you get the cookie back
+ - Install jsonwebtoken as jwt
+ - In login API, after email and password validation, create a JWT token and send it to user in cookie.
+ - Read the cookies inside your profile API and find the logged in user. 
+
+### Authentication
+
+### Install Cookie-Parser and SEND A COOKIE to user
+  - `res.cookie` is used to send the token packed inside a cookie to the user.
+
+  ```
+  const cookieParser = require("cookie-parser");
+  app.use(cookieParser());
+
+  // Add the token to cookie and send response back to the user
+  res.cookie("token", "hsjubdjdneibdiw");
+  ```
+
+### LOGIN API - Install jsonwebsocket and privatise the ID
+  - `Token` : The encoded message for the `userID` and its `secret key` created by JWT.
+  - Install: `const jwt = require("jsonwebtoken");`
+  - API used: `api.post("/login")`
+
+  - After login, `token` is created.
+
+
+  ```
+  if (isPasswordValid) {
+
+    // Create a JWT token
+    const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$467");
+
+    // Add the token to cookie and send response back to the user
+    res.cookie("token", token);
+
+    res.send("Login Successful!!");
+  }
+  ```
+
+### PROFILE API - USE the token
+  - `token` is extracted from the `cookies`.
+  - If token is invalid => User will login again.
+  - `jwt.verify` : Compares the token and the secret key to uncover the `userID`
+  - Extract the user from the userID.
+
+  - **Since the token is checked, the profile will only open for the logged-in user.**
+
+  ```
+  app.get("/profile", async (req, res) => {
+    try {
+      const cookies = req.cookies;
+
+      const { token } = cookies;
+      if (!token) {
+        throw new Error("Invalid Token!");
+      }
+
+      // Validate my token
+      const decodedMessage = await jwt.verify(token, "DEV@Tinder$467");
+
+      const { _id } = decodedMessage;
+
+      const user = await User.findById(_id);
+      if (!user) {
+        throw new Error("User does not exist!");
+      }
+
+      res.send(user);
+    } catch (err) {
+      res.status(400).send("ERROR : " + err.message);
+    }
+  });
+  ```
