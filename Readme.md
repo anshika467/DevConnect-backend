@@ -573,7 +573,14 @@ app.get("/admin/deleteUser", (req, res) => {
  - Create a GET /profile API and check if you get the cookie back
  - Install jsonwebtoken as jwt
  - In login API, after email and password validation, create a JWT token and send it to user in cookie.
- - Read the cookies inside your profile API and find the logged in user. 
+ - Read the cookies inside your profile API and find the logged in user.
+
+ - Log the userAuth Middleware
+ - Add the userAuth middleware in profile API and a new sendConnectionRequest API
+ - Set the expiry of the JWT token and cookies to 7 days
+ - Create userSchema Method to getJWT()
+ - Create userSchema Method to comparePassword(PasswordInputByUser)
+
 
 ### Authentication
 
@@ -609,7 +616,7 @@ app.get("/admin/deleteUser", (req, res) => {
   }
   ```
 
-### PROFILE API - USE the token
+### PROFILE API - USING TOKEN VALIDATION
   - `token` is extracted from the `cookies`.
   - If token is invalid => User will login again.
   - `jwt.verify` : Compares the token and the secret key to uncover the `userID`
@@ -643,3 +650,97 @@ app.get("/admin/deleteUser", (req, res) => {
     }
   });
   ```
+
+### AUTHENTICATION USING MIDDLEWARE
+  - **userAuth middleware**
+    - In order to seperate the `token validation` of user and using decodedMessage extract the `user`.
+    ```
+    const jwt = require("jsonwebtoken");
+    const User = require("../models/user");
+
+    const userAuth = async (req, res, next) => {
+      try {
+        const { token } = req.cookies;
+        if(!token) {
+          throw new Error("Token is not valid!!!!!!");
+        }
+
+        const decodedObj = await jwt.verify(token, "DEV@Tinder$467");
+
+        const { _id } = decodedObj;
+
+        const user = await User.findById(_id);
+        if (!user) {
+          throw new Error("User does not exist!");
+        }
+
+        req.user = user;
+        next();
+      } catch (err) {
+        res.status(400).send("ERROR : " + err.message);
+      }
+    };
+    ```
+  - **PROFILE API**
+    - Using the `userAuth` now the user is directly extracted and validated.
+    - In the similar way, the `sendConnectionRequest` API is created.
+
+    ```
+    app.get("/profile", userAuth, async (req, res) => {
+      try {
+        const user = req.user;
+
+        res.send(user);
+      } catch (err) {
+        res.status(400).send("ERROR : " + err.message);
+      }
+    });
+    ```
+
+### Expiry date on token and cookie
+  - **Token :**
+  ```
+  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$467", {
+    expiresIn: "7d",
+  });
+  ```
+  - **Cookie :**
+  ```
+  res.cookie("token", token, { expires: new Date(Date.now() + 900000) });
+  ```
+
+### USERSCHEMA METHODS
+  - **getJWT() method :**
+    - Since token generation is `closely related to the user` so we can create the token in the userSchema.
+
+    ```
+    userSchema.methods.getJWT = async function() {
+      const user = this;
+
+      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$467", {
+        expiresIn: "7d",
+      });
+
+      return token;
+    };
+
+    // Used as:
+    const token = await user.getJWT();
+    ```
+  - **validatePassword() method :**
+    - This takes the input by the user and validates the password by `bcrypt`.
+    ```
+    userSchema.methods.validatePassword = async function (passwordInputByUser) {
+      const user = this;
+
+      const isPasswordValid = await bcrypt.compare(
+        passwordInputByUser,
+        user.password
+      );
+
+      return isPasswordValid;
+    };
+
+    //Used as:
+    const isPasswordValid = await user.validatePassword(password);
+    ```
