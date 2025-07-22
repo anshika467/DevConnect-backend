@@ -712,6 +712,7 @@ app.get("/admin/deleteUser", (req, res) => {
 ### USERSCHEMA METHODS
   - **getJWT() method :**
     - Since token generation is `closely related to the user` so we can create the token in the userSchema.
+    - We don't use `arrow functions`, instead of `normal functions`.
 
     ```
     userSchema.methods.getJWT = async function() {
