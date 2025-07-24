@@ -78,7 +78,7 @@ requestRouter.post(
         _id: requestId,
         toUserId: loggedInUser._id,
         status: "interested",
-      });
+      }).populate("fromUserId", "firstName lastName");
 
       if (!connectionRequest) {
         return res.status(404).json({
@@ -90,10 +90,10 @@ requestRouter.post(
 
       const data = await connectionRequest.save();
 
-      const requester = await User.findById(connectionRequest.fromUserId);
+      // const requester = await User.findById(connectionRequest.fromUserId);
 
       res.json({
-        message: "Connection request " + status + " by " + loggedInUser.firstName + " sent by " + requester.firstName,
+        message: "Connection request " + status + " by " + loggedInUser.firstName,
         data,
       });
     } catch (err) {

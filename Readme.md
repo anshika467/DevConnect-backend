@@ -752,7 +752,7 @@ app.get("/admin/deleteUser", (req, res) => {
  - Explore Tinder APIs
  - Create a list of all API you can think of in Tinder
  - Group mulitple routes under respective routers
- - Read documentation for express.Router
+ - Read documentation for express.Router 
  - Create router folder for managing auth, profile, request routers
  - Create authRouter, profileRouter, requestRouter
  - Import these routers in app.js
@@ -761,6 +761,34 @@ app.get("/admin/deleteUser", (req, res) => {
  - Create PATCH / profile/password - FORGOT PASSWORD API
  - Make sure you validate all data in every POST PATCH APIs
 
+### Routing
+  - As the appliation grows, maintaining all the routes in a single file will become unmanageable.
+  - `express.Router()` provides a way to organize related routes together.
+
+  ```
+  const express = require("express");
+  const profileRouter = express.Router();
+
+  profileRouter.get("/profile/view", userAuth, async(req, res) => {
+    try {
+
+    }
+    catch (err) {
+      res.status(400).send("Profile Fetched successfully!!!");
+    }
+  });
+  ```
+
+### Logout API
+  - You just need to make the current token `null` and expire it `right now`
+
+  ```
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  ```
+
+
 **Node - 12**
 -------------
 
@@ -768,7 +796,7 @@ app.get("/admin/deleteUser", (req, res) => {
  - Send Connection request API
  - Proper Validation of data
  - Think about ALL corner cases
- - $or and $and query in mongoose
+ - $or and $and query in mongoose - https://www.mongodb.com/docs/manual/reference/operator/query-logical/
  - schema.pre("save") function
 
  - enum validation
@@ -777,7 +805,60 @@ app.get("/admin/deleteUser", (req, res) => {
  - Why do we need an index. 
  - What are the advantages and disadvantages(if we create a lot of indexes)
  - unique: true on email ID => Automatic index
- - Read the article on Compound Index
+ - Read the article on Compound Index - https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/
+
+### enum 
+  - restrict the value to be one of the given list
+  ```
+  status: {
+    type: String,
+    required: true,
+    enum: {
+      values: ["ignored", "interested", "accepted", "rejected"],
+      message: `{VALUE} is incorrect status type`,
+    },
+  },
+  ```
+
+### pre - schema.pre("save") function
+  - This middleware is that runs just before the given method - `save` everytime.
+  - `this` keyword: refers to the current instance of the schema.
+
+  ```
+  connectionRequestSchema.pre("save", function (next) {
+    const connectionRequest = this;
+
+    if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+      throw new Error("You cannot send a connection request to yourself");
+    }
+
+    next();
+  });
+  ```
+
+### Indexes
+  - It helps to order the fields in a specific way.
+  - The values can be: `1` : asc. -- `-1` : desc. -- `2d`, `2dsphere` ...
+
+  - **Why** : With large datasets, find operations can be expensive. Sorted data's retireval is much faster.
+  - **Disadv.** : If we create more indexes unnecessarily then it will cause an overhead to sort it in a specific way.
+  - **Compound Index** : Combination of fields as an index to sort them efficiently. 
+
+  ```
+  schema.index({ field1: 1, field2: 1});
+  ```
+
+### Query Operations
+  - There are multiple operators for logical query operations: 
+  
+  - **Comparison Query Operators**: `$eq`, `$gt`, `$lt`, `$gte`, `$lte`, `$in`, `$nin`, `$ne`
+  - **Logical Query**: `$and`, `$or`, `$not`, `$nor`
+
+  - `$in` : Documents present inside an array
+
+  ```
+  $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+  ```
 
 
 **Node - 13**
@@ -785,3 +866,75 @@ app.get("/admin/deleteUser", (req, res) => {
 
  - Write code with proper validations for POST /request/review/:status/:requestId
  - Thought Process - POST vs GET
+ - Read about ref and populate
+ - Create GET /user/requests/recieved with all the checks
+ - Create GET /user/connections
+
+### ref - reference
+  - It is used to establish a connection between two tables - `collections`
+  - **Enables to access the fields and data of another table for a certain field of this table**
+
+  ```
+  fromUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // reference to User collection
+    required: true,
+  },
+  ```
+
+### populate - Accessing details using ref
+  - It replaces the `id` with the details of the referenced tables.
+  - No manual lookups
+  ```
+  const connectionRequest = await ConnectionRequest.findOne({
+    _id: requestId,
+    toUserId: loggedInUser._id,
+    status: "interested",
+  }).populate("fromUserId", "firstName lastName");
+  ```
+
+**Node - 14**
+-------------
+
+ - Logic for GET /feed API
+ - Explore the $nin, $and, $ne and other query operators
+ - pagination
+ 
+/feed?page=1&limit=10 => 1-10  => .skip(0) & .limit(10)
+
+/feed?page=2&limit=10 => 11-20 => .skip(10) & .limit(10)
+
+/feed?page=3&limit=10 => 21-30 => .skip(20) & .limit(10)
+
+### Set
+  - It allows to remove duplicacy from the list of elements.
+  ```
+  const hideUsersFromFeed = new Set();
+
+  connectionRequests.forEach((req) => {
+    hideUsersFromFeed.add(req.fromUserId.toString());
+    hideUsersFromFeed.add(req.toUserId.toString());
+  });
+  ```
+
+### Pagination
+  - `skip` : To skip certain docs from the starting of the database.
+  - `limit` : To retrict the max. number of elements fetched at a time.
+  - `select` : It is used to choose certain fields from the group of fields.
+
+  ```
+  const page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+  
+  const users = await User.find({
+    $and: [
+      { _id: { $nin: Array.from(hideUsersFromFeed) } },
+      { _id: { $ne: loggedInUser._id } },
+    ],
+  })
+    .select(USER_SAFE_DATA)
+    .skip(skip)
+    .limit(limit);
+
+  res.json({ data: users });
+  ```
