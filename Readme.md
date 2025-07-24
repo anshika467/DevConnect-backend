@@ -745,3 +745,43 @@ app.get("/admin/deleteUser", (req, res) => {
     //Used as:
     const isPasswordValid = await user.validatePassword(password);
     ```
+
+**Node - 11**
+-------------
+
+ - Explore Tinder APIs
+ - Create a list of all API you can think of in Tinder
+ - Group mulitple routes under respective routers
+ - Read documentation for express.Router
+ - Create router folder for managing auth, profile, request routers
+ - Create authRouter, profileRouter, requestRouter
+ - Import these routers in app.js
+ - Create POST / logout api
+ - Create PATCH /profile/edit API
+ - Create PATCH / profile/password - FORGOT PASSWORD API
+ - Make sure you validate all data in every POST PATCH APIs
+
+**Node - 12**
+-------------
+
+ - Create ConnectionRequestSchema
+ - Send Connection request API
+ - Proper Validation of data
+ - Think about ALL corner cases
+ - $or and $and query in mongoose
+ - schema.pre("save") function
+
+ - enum validation
+ - Request APIs...
+ - Read more about indexes...
+ - Why do we need an index. 
+ - What are the advantages and disadvantages(if we create a lot of indexes)
+ - unique: true on email ID => Automatic index
+ - Read the article on Compound Index
+
+
+**Node - 13**
+-------------
+
+ - Write code with proper validations for POST /request/review/:status/:requestId
+ - Thought Process - POST vs GET
