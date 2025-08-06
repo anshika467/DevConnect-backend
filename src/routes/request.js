@@ -14,6 +14,10 @@ requestRouter.post(
       const toUserId = req.params.toUserId;
       const status = req.params.status;
 
+      if (fromUserId === toUserId) {
+        throw new Error("You cannot send a connection request to yourself!");
+      }
+
       const allowedStatus = ["ignored", "interested"];
 
       if (!allowedStatus.includes(status)) {
@@ -93,7 +97,8 @@ requestRouter.post(
       // const requester = await User.findById(connectionRequest.fromUserId);
 
       res.json({
-        message: "Connection request " + status + " by " + loggedInUser.firstName,
+        message:
+          "Connection request " + status + " by " + loggedInUser.firstName,
         data,
       });
     } catch (err) {
