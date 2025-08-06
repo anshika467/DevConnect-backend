@@ -1,4 +1,4 @@
-# NODE SEASON 2
+# DEVCONNECT PROJECT
 
 **Node - 3**
 ------------
