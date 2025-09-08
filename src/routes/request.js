@@ -107,7 +107,7 @@ requestRouter.post(
   }
 );
 
-requestRouter.delete("/request/delete", async (req, res) => {
+requestRouter.delete("/request/delete", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
 
