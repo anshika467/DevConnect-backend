@@ -53,7 +53,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: req.user.firstName + " " + status + " " + toUser.firstName,
+        message: req.user.firstName + " is " + status + " to " + toUser.firstName,
         data,
       });
     } catch (err) {
@@ -106,5 +106,22 @@ requestRouter.post(
     }
   }
 );
+
+requestRouter.delete("/request/delete", async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+
+    const data = await ConnectionRequest.deleteMany({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+    });
+
+    res.json({
+      message: "All connection requests related to " + loggedInUser.firstName + " are deleted successfully!!!",
+      data,
+    });
+  } catch (err) {
+    return res.status(400).send("ERROR : " + err.message);
+  }
+});
 
 module.exports = requestRouter;

@@ -4,6 +4,7 @@ const authRouter = express.Router();
 const { validateSignUpData } = require("../utils/validation");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const { userAuth } = require("../middlewares/auth");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -28,7 +29,7 @@ authRouter.post("/signup", async (req, res) => {
     res.cookie("token", token, {
       expires: new Date(Date.now() + 8 * 3600000), //
     });
-    
+
     res.json({
       message: "User added successfully!!!",
       data: savedUser,
@@ -72,6 +73,21 @@ authRouter.post("/logout", async (req, res) => {
   });
 
   res.send("Logout Successful!!!");
+});
+
+authRouter.delete("/deleteAccount", userAuth, async (req, res) => {
+  const loggedInUser = req.user;
+
+  const data = await User.findByIdAndDelete(loggedInUser._id);
+
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+
+  res.send({
+    message: "Account Deleted Successfully!!!",
+    data,
+  });
 });
 
 module.exports = authRouter;
