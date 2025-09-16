@@ -2,7 +2,6 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const bcrypt = require("bcrypt");
-const { c } = require("tar");
 
 const profileRouter = express.Router();
 
